@@ -7,8 +7,9 @@ import { Action } from '@ngrx/store';
 import { OnInitEffects } from '@ngrx/effects';
 import { EventsService } from 'src/app/services/events.service';
 import { IEventsResponse } from 'src/app/models/events.models';
+
 @Injectable()
-export class BlogEffects implements OnInitEffects {
+export class EventsEffects implements OnInitEffects {
 
   // MODULE INIT EFFECTS
   ngrxOnInitEffects(): Action {

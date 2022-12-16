@@ -7,6 +7,11 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
+import { eventsFeature } from './store/events/events.feature';
+import { EventsEffects } from './store/events/events.effects';
+import { EventsService } from './services/events.service';
+import { HttpService } from './services/http.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -14,14 +19,17 @@ import { environment } from '../environments/environment';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     PrimeNgModule,
     StoreModule.forRoot({}),
+    StoreModule.forFeature(eventsFeature),
     EffectsModule.forRoot([]),
+    EffectsModule.forFeature([EventsEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
   exports: [PrimeNgModule],
-  providers: [],
+  providers: [HttpService, EventsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
