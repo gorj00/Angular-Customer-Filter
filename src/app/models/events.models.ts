@@ -20,7 +20,7 @@ export interface IEventsState {
   error: any;
 }
 
-export interface IFromProperty {
+export interface IFormProperty {
     propertyName: string[];
     type: string[];
     operator: string[];
@@ -34,5 +34,7 @@ export interface IFormStep {
 }
 
 export interface IEventsData {
-  types: string[];
+  // types: string[];
+  events: IEvent[] | null;
+  propertiesByEvent: {[key: string]: IProperty[]};
 }

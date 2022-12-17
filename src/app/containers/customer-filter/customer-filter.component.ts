@@ -1,8 +1,8 @@
 import { EventsFacade } from './../../store/events/events.facade';
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, buffer, combineLatest, map, Observable, shareReplay, tap } from 'rxjs';
-import { IEvent, IEventsData, IFormStep, IFromProperty } from 'src/app/models/events.models';
-import { FormBuilder, FormArray, FormGroup } from '@angular/forms';
+import { BehaviorSubject, buffer, combineLatest, map, Observable, shareReplay, startWith, Subject, tap } from 'rxjs';
+import { IEvent, IEventsData, IFormStep, IFormProperty, IProperty } from 'src/app/models/events.models';
+import { FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-customer-filter',
@@ -11,10 +11,6 @@ import { FormBuilder, FormArray, FormGroup } from '@angular/forms';
 })
 export class CustomerFilterComponent implements OnInit {
 
-  // Subjects
-  eventsQueryBehaviorSubject = new BehaviorSubject<string>('')
-  eventsQuery$ = this.eventsQueryBehaviorSubject.asObservable()
-
   constructor(
     private eventsFacade: EventsFacade,
     private fb: FormBuilder,
@@ -22,25 +18,19 @@ export class CustomerFilterComponent implements OnInit {
 
   // Data related
   events$: Observable<IEventsData> = this.eventsFacade.events$.pipe(
-    map(events => ({
-      types: events ? events.map(item => item.type) : []
-    })),
+    map(events => {
+      console.log(events)
+      // const types = events ? events.map(item => item) : []
+      const propertiesByEvent: { [key: string]: IProperty[]} = {}
+      events?.length && events.forEach(event => {
+        propertiesByEvent[event.type] = event.properties
+      })
+      return ({
+        events,
+        propertiesByEvent,
+      })
+    }),
     shareReplay({ bufferSize: 1, refCount: true})
-  )
-
-  filteredEventsTypes$ = combineLatest(
-    this.events$,
-    this.eventsQuery$
-  ).pipe(
-    map(([{ types }, eventsQuery]) => {
-      const filtered = []
-      for (let type of types) {
-        if (type.replace('_', ' ').toLowerCase().indexOf(eventsQuery.toLowerCase()) === 0) {
-          filtered.push(type);
-        }
-      }
-      return filtered
-    })
   )
 
   // Filters form related
@@ -48,8 +38,8 @@ export class CustomerFilterComponent implements OnInit {
     steps: this.fb.array([
       // Setup initial 1st step
       this.fb.group({
-        customerEvent: [''],
-        properties: this.fb.array([])
+        customerEvent: ['', Validators.required],
+        properties: this.fb.array([]) as FormArray
       })
     ])
   })
@@ -58,17 +48,14 @@ export class CustomerFilterComponent implements OnInit {
     return this.filtersForm.controls["steps"] as FormArray<FormGroup>;
   }
 
-  search(event: any) {
-    // this.suggestions = [...this.suggestions]
-    this.eventsQueryBehaviorSubject.next(event.query)
+  getFormPropertyValue(step: number, controlIndex: number) {
+    return this.getStepEventProperties(step).at(controlIndex).value
   }
-  // suggestions = ['Hello', 'Nope']
-
 
   addStep() {
     const stepForm = this.fb.group({
-        customerEvent: [''],
-        properties: this.fb.array([])
+        customerEvent: ['', Validators.required],
+        properties: this.fb.array([]) as FormArray
     });
 
 
@@ -79,19 +66,28 @@ export class CustomerFilterComponent implements OnInit {
     this.steps.removeAt(stepIndex)
   }
 
+  getStepCustomerEventControl(stepIndex: number) {
+    return this.filtersForm.controls['steps'].at(stepIndex).controls['customerEvent'];
+  }
+
+  getStepCustomerEventValue(stepIndex: number): string {
+    const value = this.getStepCustomerEventControl(stepIndex).value
+    return value ? value : ''
+  }
+
   getStepEventProperties(stepIndex: number) {
-    return this.filtersForm.controls['steps'].at(stepIndex).controls['properties']  as FormArray;
+    return this.filtersForm.controls['steps'].at(stepIndex).controls['properties'] as FormArray<FormGroup>;
   }
 
   addStepProperty(stepIndex: number) {
-    const propertyForm = this.fb.group<IFromProperty>({
+    const propertyForm = this.fb.group({
       propertyName: [''],
       type: [''],
       operator: [''],
       propertyValue: [''],
       partTwoPropertyValue: [''],
   });
-    this.getStepEventProperties(stepIndex).push(propertyForm)
+    this.getStepEventProperties(stepIndex).push(propertyForm as FormGroup)
   }
 
   removeStepProperty(stepIndex: number, propertyIndex: number) {
@@ -101,9 +97,9 @@ export class CustomerFilterComponent implements OnInit {
   // Final data object
   data$ = combineLatest(
     this.events$,
-    this.filteredEventsTypes$,
   ).pipe(
-    map(([events, filteredEventsTypes]) => ({events, filteredEventsTypes}))
+    map(([events]) => ({events})),
+    shareReplay({ bufferSize: 1, refCount: true})
   )
 
   ngOnInit(): void {

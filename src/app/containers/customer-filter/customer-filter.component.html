@@ -1,44 +1,48 @@
 <ng-container *ngIf="data$ | async as data">
   <div [formGroup]="filtersForm">
     <ng-container formArrayName="steps">
-        <ng-container *ngFor="let step of steps.controls; let i = index">
-            <div [formGroup]="step">
-              <p-autoComplete
-                formControlName="customerEvent"
-                [suggestions]="data.filteredEventsTypes"
-                (completeMethod)="search($event)"
-                [dropdown]="true"
-                [forceSelection]="true"
-                placeholder="Select an event"
-              >
-                <ng-template let-type pTemplate="item">
-                  {{ type | readable }}
-                </ng-template>
-              </p-autoComplete>
-
-                <!-- <mat-form-field appearance="fill">
-                    <input matInput
-                           formControlName="title"
-                           placeholder="Lesson title">
-                </mat-form-field>
-                <mat-form-field appearance="fill">
-                    <mat-select formControlName="level"
-                            placeholder="Lesson level">
-                        <mat-option value="beginner">Beginner</mat-option>
-                        <mat-option value="intermediate">Intermediate</mat-option>
-                        <mat-option value="advanced">Advanced</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-icon class="delete-btn" (click)="deleteLesson(i)">
-                    delete_forever</mat-icon> -->
-            </div>
+        <ng-container *ngIf="data.events.events">
+          <ng-container *ngFor="let step of steps.controls; let i = index">
+              <div [formGroup]="step">
+                <p-dropdown
+                  formControlName="customerEvent"
+                  [options]="data.events.events"
+                  [optionValue]="'type'"
+                  [optionLabel]="'type'"
+                  placeholder="Select an event"
+                  [filter]="true"
+                  filterBy="type"
+                ></p-dropdown>
+                <button
+                  pButton pRipple
+                  type="button"
+                  label="+ Add an event attribute"
+                  class="p-button-info p-button-text p-button-sm mb-1"
+                  *ngIf="step.controls['customerEvent'].valid && !getStepEventProperties(i).length"
+                  (click)="addStepProperty(i)"
+                ></button>
+                <ng-container *ngIf="getStepEventProperties(i).length">
+                  <ng-container formArrayName="properties">
+                    <ng-container *ngFor="let property of getStepEventProperties(i).controls, let j = index">
+                      <ng-container [formGroup]="property">
+                        <p-dropdown
+                          formControlName="propertyName"
+                          [options]="data.events.propertiesByEvent[getStepCustomerEventValue(i)]"
+                          [optionValue]="'property'"
+                          [optionLabel]="'property'"
+                          placeholder="Select an attribute"
+                          [filter]="true"
+                          filterBy="type"
+                        ></p-dropdown>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+              </div>
+          </ng-container>
         </ng-container>
-        <button (click)="addStep()">Click</button>
+        <!-- <button (click)="addStep()">Click</button> -->
     </ng-container>
-
-    <!-- <button mat-mini-fab (click)="addLesson()">
-        <mat-icon class="add-course-btn">add</mat-icon>
-    </button> -->
 
 </div>
 </ng-container>
