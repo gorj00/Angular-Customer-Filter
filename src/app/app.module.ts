@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PrimeNgModule } from './modules/primeng.module'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,14 +13,21 @@ import { EventsEffects } from './store/events/events.effects';
 import { EventsService } from './services/events.service';
 import { HttpService } from './services/http.service';
 import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CustomerFilterComponent } from './containers/customer-filter/customer-filter.component';
+import { ReadablePipe } from 'src/pipes/readable.pipe';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    CustomerFilterComponent,
+    ReadablePipe,
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
+    ReactiveFormsModule,
     AppRoutingModule,
     PrimeNgModule,
     StoreModule.forRoot({}),

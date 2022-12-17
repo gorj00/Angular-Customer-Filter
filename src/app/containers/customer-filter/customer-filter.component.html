@@ -1,0 +1,44 @@
+<ng-container *ngIf="data$ | async as data">
+  <div [formGroup]="filtersForm">
+    <ng-container formArrayName="steps">
+        <ng-container *ngFor="let step of steps.controls; let i = index">
+            <div [formGroup]="step">
+              <p-autoComplete
+                formControlName="customerEvent"
+                [suggestions]="data.filteredEventsTypes"
+                (completeMethod)="search($event)"
+                [dropdown]="true"
+                [forceSelection]="true"
+                placeholder="Select an event"
+              >
+                <ng-template let-type pTemplate="item">
+                  {{ type | readable }}
+                </ng-template>
+              </p-autoComplete>
+
+                <!-- <mat-form-field appearance="fill">
+                    <input matInput
+                           formControlName="title"
+                           placeholder="Lesson title">
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                    <mat-select formControlName="level"
+                            placeholder="Lesson level">
+                        <mat-option value="beginner">Beginner</mat-option>
+                        <mat-option value="intermediate">Intermediate</mat-option>
+                        <mat-option value="advanced">Advanced</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-icon class="delete-btn" (click)="deleteLesson(i)">
+                    delete_forever</mat-icon> -->
+            </div>
+        </ng-container>
+        <button (click)="addStep()">Click</button>
+    </ng-container>
+
+    <!-- <button mat-mini-fab (click)="addLesson()">
+        <mat-icon class="add-course-btn">add</mat-icon>
+    </button> -->
+
+</div>
+</ng-container>
