@@ -32,8 +32,17 @@
                           [optionLabel]="'property'"
                           placeholder="Select an attribute"
                           [filter]="true"
-                          filterBy="type"
-                        ></p-dropdown>
+                          filterBy="property"
+                          class="property-dropdown"
+                        >
+                          <ng-template pTemplate="header">
+                            <div class="current-event-in-prop">
+                              <button pButton pRipple type="button" class="p-button-secondary p-button-sm">
+                                {{ getStepCustomerEventValue(i) }}
+                              </button>
+                            </div>
+                          </ng-template>
+                        </p-dropdown>
                       </ng-container>
                     </ng-container>
                   </ng-container>
