@@ -90,67 +90,18 @@
                             ></i>
 
                             <!-- After attribute selection: SHOW INPUTS -->
-                            <ng-container *ngIf="isPropertyNameSelected(i, j)">
-                              <!-- Logical operators dropdown -->
-                              <p-dropdown
-                                formControlName="operator"
-                                [options]="operators[getPropertyType(i, j)]"
-                                [filter]="false"
-                                appendTo="body"
-                              >
-                                <!-- Tabs to switch from string to number -->
-                                <ng-template pTemplate="header">
-                                  <p-tabMenu
-                                    [model]="operatorsDropdownHeaderTabs"
-                                    [activeItem]="getActiveOperatorsTab(i, j)"
-                                    (click)="onChangeActiveOperatorsTab($event, i, j)"
-                                  >
-                                  </p-tabMenu>
-                                </ng-template>
-                              </p-dropdown>
-
-                              <!-- String input -->
-                              <ng-template
-                                [ngIf]="getPropertyType(i, j) === 'string'"
-                                [ngIfElse]="numberInput"
-                              >
-                                <input
-                                  class="input-value"
-                                  type="text"
-                                  pInputText
-                                  formControlName="propertyValue"
-                                />
-                              </ng-template>
-
-                              <!-- Number input -->
-                              <ng-template #numberInput>
-                                <input
-                                  class="input-value"
-                                  type="number"
-                                  pInputText
-                                  formControlName="propertyValue"
-                                />
-                              </ng-template>
-
-                              <!-- Number input: IN BETWEEN operator case -->
-                              <ng-template
-                                [ngIf]="getPropertyOperator(i, j) === EOperators.IN_BETWEEN"
-                              >
-                                <span class="px-2">and</span>
-                                <input
-                                  class="input-value"
-                                  type="number"
-                                  pInputText
-                                  formControlName="propertyValuePartTwo"
-                                />
-                              </ng-template>
-
-                              <!-- Float icon: REMOVE attribute with inputs -->
-                              <i *ngIf="isPropertyNameSelected(i, j)"
-                                class="pi pi-times invisible pl-3"
-                                (click)="removeStepProperty(i, j)"
-                              ></i>
-                            </ng-container>
+                            <app-attribute-inputs
+                              [i]="i"
+                              [j]="j"
+                              [isPropertyNameSelected]="isPropertyNameSelected(i,j)"
+                              [optionsOperators]="operators[getPropertyType(i, j)]"
+                              [operatorsDropdownHeaderTabs]="operatorsDropdownHeaderTabs"
+                              [activeOperatorsTab]="getActiveOperatorsTab(i, j)"
+                              [propertyType]="getPropertyType(i, j)"
+                              [propertyOperator]="getPropertyOperator(i, j)"
+                              (changeActiveOperatorsTabAction)="changeActiveOperatorsTab($event)"
+                              (removeStepPropertyAction)="removeStepPropertyByChild($event)"
+                            ></app-attribute-inputs>
                           </ng-container>
                         </div>
                       </div>
@@ -167,7 +118,7 @@
                       (click)="addStepProperty(i)"
                     ></button>
                   </div>
-                  
+
                 </div>
               </div>
             </div>

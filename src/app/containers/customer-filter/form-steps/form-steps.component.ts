@@ -117,7 +117,10 @@ export class FormStepsComponent implements OnInit {
     }
   }
 
-  onChangeActiveOperatorsTab(event: any, stepIndex: number, propertyIndex: number) {
+  changeActiveOperatorsTab(obj: {
+    event: any, i: number, j: number
+  }) {
+    const { event, i: stepIndex, j: propertyIndex } = obj
     // Workaround as the TabMenu docs's activeItemChange event was not firing the selected tab
     const tabChoice = event.target.innerText;
     const prop = this.getStepEventProperties(stepIndex).at(propertyIndex)
@@ -130,6 +133,11 @@ export class FormStepsComponent implements OnInit {
   }
 
   removeStepProperty(stepIndex: number, propertyIndex: number) {
+    this.getStepEventProperties(stepIndex).removeAt(propertyIndex)
+  }
+
+  removeStepPropertyByChild(obj: { i: number, j: number}) {
+    const { i: stepIndex, j: propertyIndex } = obj
     this.getStepEventProperties(stepIndex).removeAt(propertyIndex)
   }
 

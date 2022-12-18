@@ -17,6 +17,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CustomerFilterComponent } from './containers/customer-filter/customer-filter.component';
 import { ReadablePipe } from 'src/pipes/readable.pipe';
 import { FormStepsComponent } from './containers/customer-filter/form-steps/form-steps.component';
+import { AttributeInputsComponent } from './containers/customer-filter/attribute-inputs/attribute-inputs.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { FormStepsComponent } from './containers/customer-filter/form-steps/form
     CustomerFilterComponent,
     ReadablePipe,
     FormStepsComponent,
+    AttributeInputsComponent,
   ],
   imports: [
     BrowserModule,
