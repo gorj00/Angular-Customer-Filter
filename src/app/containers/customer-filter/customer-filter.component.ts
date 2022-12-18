@@ -12,15 +12,6 @@ import { MenuItem } from 'primeng/api';
 })
 export class CustomerFilterComponent implements OnInit {
 
-  // Subjects
-  // eventsQueryBSubject = new BehaviorSubject<string>('')
-  // eventsQuery$ = this.eventsQueryBSubject.asObservable()
-  // propertyQuerySubject = new Subject<{ eventType: string | null, query: string }>()
-  // propertyQuery$ = this.propertyQuerySubject.asObservable()
-
-  // addEventAttributeButtonShowBSubject = new BehaviorSubject<{ [key: number]: boolean }>({ 0: false })
-  // addEventAttributeButtonShow$ = this.addEventAttributeButtonShowBSubject.asObservable()
-
   operators: IOperators = {
     string: [
       EOperators.EQUALS,
@@ -63,39 +54,6 @@ export class CustomerFilterComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true})
   )
 
-  // filteredEventsTypes$ = combineLatest(
-  //   this.events$,
-  //   this.eventsQuery$
-  // ).pipe(
-  //   map(([{ events }, eventsQuery]) => {
-  //     const filtered = []
-  //     for (let event of events) {
-  //       if (type.replace('_', ' ').toLowerCase().indexOf(eventsQuery.toLowerCase()) === 0) {
-  //         filtered.push(type);
-  //       }
-  //     }
-  //     return filtered
-  //   })
-  // )
-
-
-  // filteredProperties$ = combineLatest(
-  //   this.events$,
-  //   this.propertyQuery$
-  // ).pipe(
-  //   map(([{ propertiesByEvent }, propertyQueryObj]) => {
-  //     const filtered = []
-  //     const propertiesForCurrentType = propertyQueryObj.eventType ? propertiesByEvent[propertyQueryObj.eventType] : []
-  //     for (let property of propertiesForCurrentType) {
-  //       if (property.property.replace('_', ' ').toLowerCase().indexOf(propertyQueryObj.query.toLowerCase()) === 0) {
-  //         filtered.push(property.property);
-  //       }
-  //     }
-  //     return filtered
-  //   }),
-  //   startWith([])
-  // )
-
   // Filters form related
   filtersForm = this.fb.group({
     steps: this.fb.array([
@@ -111,15 +69,6 @@ export class CustomerFilterComponent implements OnInit {
     return this.filtersForm.controls["steps"] as FormArray<FormGroup>;
   }
 
-  // onSearchEvents(event: any) {
-  //   this.eventsQueryBSubject.next(event.query)
-  // }
-
-  // onSearchProperties(stepIndex: number, event: any) {
-  //   const type = this.getStepCustomerEventValue(stepIndex)
-  //   this.propertyQuerySubject.next({ eventType: type, query: event.query})
-  // }
-
   getFormPropertyValue(step: number, controlIndex: number) {
     return this.getStepEventProperties(step).at(controlIndex).value
   }
@@ -129,8 +78,6 @@ export class CustomerFilterComponent implements OnInit {
         customerEvent: ['', Validators.required],
         properties: this.fb.array([]) as FormArray
     });
-
-
     this.steps.push(stepForm as FormGroup);
   }
 
@@ -208,10 +155,8 @@ export class CustomerFilterComponent implements OnInit {
   // Final data object
   data$ = combineLatest(
     this.events$,
-    // this.filteredEventsTypes$,
-    // this.filteredProperties$,
   ).pipe(
-    map(([events, /* filteredEventsTypes, filteredProperties */]) => ({events, /* filteredEventsTypes, filteredProperties */})),
+    map(([events]) => ({events})),
     tap(obj => console.log(obj)),
     shareReplay({ bufferSize: 1, refCount: true})
   )
