@@ -209,6 +209,12 @@ export class CustomerFilterComponent implements OnInit {
     typeControl.setValue(tabChoice?.toLowerCase())
   }
 
+  onApplyFilters() {
+    if (this.steps.length) {
+      console.log(this.filtersForm.value)
+    }
+  }
+
   // Final data object
   data$ = combineLatest(
     this.events$,
