@@ -1,14 +1,14 @@
 import { MenuItem } from 'primeng/api';
 import { FormArray, FormGroup, FormBuilder } from '@angular/forms';
 import { IEvent, IOperators, EOperators, IProperty } from 'src/app/models/events.models';
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
 
 @Component({
   selector: 'app-form-steps',
   templateUrl: './form-steps.component.html',
   styleUrls: ['./form-steps.component.less']
 })
-export class FormStepsComponent implements OnInit {
+export class FormStepsComponent implements OnInit, AfterViewChecked {
   @Input() events!: IEvent[] | null
   @Input() propertiesByEvent!: { [key: string]: IProperty[]}
   @Input() steps!: FormArray<FormGroup>
@@ -45,6 +45,7 @@ export class FormStepsComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   getStepCustomerEventControl(stepIndex: number) {
@@ -100,7 +101,8 @@ export class FormStepsComponent implements OnInit {
     this.getStepEventProperties(stepIndex).push(propertyForm as FormGroup)
   }
 
-  onSelectProperty(event: any, stepIndex: number, propertyIndex: number) {
+  selectProperty(obj: { event: any, i: number, j: number}) {
+    const { event, i: stepIndex, j: propertyIndex } = obj
     const { property, type } = event.value
     const prop = this.getStepEventProperties(stepIndex).at(propertyIndex)
     prop.controls['propertyName'].setValue(property)
@@ -165,6 +167,10 @@ export class FormStepsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  ngAfterViewChecked(): void {
+    this.cdr.detectChanges();
   }
 
 }

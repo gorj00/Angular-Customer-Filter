@@ -1,61 +1,96 @@
-<ng-container *ngIf="isPropertyNameSelected">
-  <!-- Logical operators dropdown -->
+<ng-container [formGroup]="property">
+
+  <!-- Select an event attribute -->
   <p-dropdown
-    formControlName="operator"
-    [options]="optionsOperators"
-    [filter]="false"
-    appendTo="body"
+    formControlName="propertyObject"
+    [options]="propertiesByEventOptions"
+    [optionLabel]="'property'"
+    placeholder="Select an attribute"
+    [filter]="true"
+    filterBy="property"
+    class="wide property-dropdown"
+    (onChange)="onSelectProperty($event, i,j)"
   >
-    <!-- Tabs to switch from string to number -->
     <ng-template pTemplate="header">
-      <p-tabMenu
-        [model]="operatorsDropdownHeaderTabs"
-        [activeItem]="activeOperatorsTab"
-        (click)="onChangeActiveOperatorsTab($event, i, j)"
-      >
-      </p-tabMenu>
+      <!-- Show related selected event in the attributes dropdown -->
+      <div class="current-event-in-prop">
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-secondary p-button-sm"
+        >
+          {{ stepCustomerEventValue }}
+        </button>
+      </div>
     </ng-template>
   </p-dropdown>
-
-  <!-- String input -->
-  <ng-template
-    [ngIf]="propertyType === 'string'"
-    [ngIfElse]="numberInput"
-  >
-    <input
-      class="input-value"
-      type="text"
-      pInputText
-      formControlName="propertyValue"
-    />
-  </ng-template>
-
-  <!-- Number input -->
-  <ng-template #numberInput>
-    <input
-      class="input-value"
-      type="number"
-      pInputText
-      formControlName="propertyValue"
-    />
-  </ng-template>
-
-  <!-- Number input: IN BETWEEN operator case -->
-  <ng-template
-    [ngIf]="propertyOperator === EOperators.IN_BETWEEN"
-  >
-    <span class="px-2">and</span>
-    <input
-      class="input-value"
-      type="number"
-      pInputText
-      formControlName="propertyValuePartTwo"
-    />
-  </ng-template>
-
-  <!-- Float icon: REMOVE attribute with inputs -->
-  <i *ngIf="isPropertyNameSelected"
-    class="pi pi-times invisible pl-3"
+  <!-- Float icon: REMOVE attribute -->
+  <i *ngIf="!isPropertyNameSelected"
+    class="pi pi-times invisible"
     (click)="onRemoveStepProperty(i, j)"
   ></i>
+  <ng-container *ngIf="isPropertyNameSelected">
+    <!-- Logical operators dropdown -->
+    <p-dropdown
+      formControlName="operator"
+      [options]="optionsOperators"
+      [filter]="false"
+      appendTo="body"
+    >
+      <!-- Tabs to switch from string to number -->
+      <ng-template pTemplate="header">
+        <p-tabMenu
+          [model]="operatorsDropdownHeaderTabs"
+          [activeItem]="activeOperatorsTab"
+          (click)="onChangeActiveOperatorsTab($event, i, j)"
+        >
+        </p-tabMenu>
+      </ng-template>
+    </p-dropdown>
+
+    <!-- String input -->
+    <ng-template
+      [ngIf]="propertyType === 'string'"
+      [ngIfElse]="numberInput"
+    >
+      <input
+        class="input-value"
+        type="text"
+        pInputText
+        formControlName="propertyValue"
+      />
+    </ng-template>
+
+    <!-- Number input -->
+    <ng-template #numberInput>
+      <input
+        class="input-value"
+        type="number"
+        pInputText
+        formControlName="propertyValue"
+      />
+    </ng-template>
+
+    <!-- Number input: IN BETWEEN operator case -->
+    <ng-template
+      [ngIf]="propertyOperator === EOperators.IN_BETWEEN"
+    >
+      <span class="px-2">and</span>
+      <input
+        class="input-value"
+        type="number"
+        pInputText
+        formControlName="propertyValuePartTwo"
+      />
+    </ng-template>
+
+    <!-- Float icon: REMOVE attribute with inputs -->
+    <i *ngIf="isPropertyNameSelected"
+      class="pi pi-times invisible pl-3"
+      (click)="onRemoveStepProperty(i, j)"
+    ></i>
+  </ng-container>
 </ng-container>
+
+

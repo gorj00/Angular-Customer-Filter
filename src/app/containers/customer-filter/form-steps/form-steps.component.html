@@ -56,53 +56,24 @@
 
                         <!-- Step properties multiple rows inside the column -->
                         <div class="col-12 property-row" *ngFor="let property of getStepEventProperties(i).controls, let j = index">
-                          <ng-container [formGroup]="property">
-
-                            <!-- Select an event attribute -->
-                            <p-dropdown
-                              formControlName="propertyObject"
-                              [options]="propertiesByEvent[getStepCustomerEventValue(i)]"
-                              [optionLabel]="'property'"
-                              placeholder="Select an attribute"
-                              [filter]="true"
-                              filterBy="property"
-                              class="wide property-dropdown"
-                              (onChange)="onSelectProperty($event, i,j)"
-                            >
-                              <ng-template pTemplate="header">
-                                <!-- Show related selected event in the attributes dropdown -->
-                                <div class="current-event-in-prop">
-                                  <button
-                                    pButton
-                                    pRipple
-                                    type="button"
-                                    class="p-button-secondary p-button-sm"
-                                  >
-                                    {{ getStepCustomerEventValue(i) }}
-                                  </button>
-                                </div>
-                              </ng-template>
-                            </p-dropdown>
-                            <!-- Float icon: REMOVE attribute -->
-                            <i *ngIf="!isPropertyNameSelected(i, j)"
-                              class="pi pi-times invisible"
-                              (click)="removeStepProperty(i, j)"
-                            ></i>
 
                             <!-- After attribute selection: SHOW INPUTS -->
                             <app-attribute-inputs
                               [i]="i"
                               [j]="j"
+                              [property]="property"
                               [isPropertyNameSelected]="isPropertyNameSelected(i,j)"
                               [optionsOperators]="operators[getPropertyType(i, j)]"
                               [operatorsDropdownHeaderTabs]="operatorsDropdownHeaderTabs"
                               [activeOperatorsTab]="getActiveOperatorsTab(i, j)"
                               [propertyType]="getPropertyType(i, j)"
                               [propertyOperator]="getPropertyOperator(i, j)"
+                              [propertiesByEventOptions]="propertiesByEvent[getStepCustomerEventValue(i)]"
+                              [stepCustomerEventValue]="getStepCustomerEventValue(i)"
                               (changeActiveOperatorsTabAction)="changeActiveOperatorsTab($event)"
                               (removeStepPropertyAction)="removeStepPropertyByChild($event)"
+                              (selectPropertyAction)="selectProperty($event)"
                             ></app-attribute-inputs>
-                          </ng-container>
                         </div>
                       </div>
                     </ng-container>
