@@ -102,7 +102,7 @@ export class CustomerFilterComponent implements OnInit {
   )
 
   ngOnInit(): void {
-    this.filtersForm.valueChanges.subscribe(v => console.log(v))
+    // this.filtersForm.valueChanges.subscribe(v => console.log(v))
   }
 
 }
