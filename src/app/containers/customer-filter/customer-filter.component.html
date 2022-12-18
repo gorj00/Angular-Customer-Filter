@@ -15,6 +15,18 @@
             <div *ngFor="let step of steps.controls; let i = index">
                 <div [formGroup]="step">
                   <div class="grid">
+                    <div class="col-12 text-sm text-600 step-header">
+                      <div class="grid">
+                        <div class="col-4">
+                          {{ i + 1}}.step: <span class="pl-2">{{ getStepCustomerEventValue(i) ? getStepCustomerEventValue(i) : 'Unnamed step'}}</span>
+                          <i class="pi pi-pencil pl-2"></i>
+                        </div>
+                        <div class="col-8 text-right">
+                          <i class="pi pi-trash pl-4 invisible" *ngIf="i > 0" (click)="removeStep(i)"></i>
+                          <i class="pi pi-clone px-4 invisible" (click)="cloneStep(i)"></i>
+                        </div>
+                      </div>
+                    </div>
                     <div class="col-1 event-col">
                       <p-dropdown
                         formControlName="customerEvent"
@@ -40,7 +52,7 @@
                           ></button>
                           <ng-container *ngIf="getStepEventProperties(i).length">
                             <div class="grid" formArrayName="properties">
-                              <div class="col-12" *ngFor="let property of getStepEventProperties(i).controls, let j = index">
+                              <div class="col-12 property-row" *ngFor="let property of getStepEventProperties(i).controls, let j = index">
                                 <ng-container [formGroup]="property">
                                   <p-dropdown
                                     formControlName="propertyObject"
@@ -54,12 +66,22 @@
                                   >
                                     <ng-template pTemplate="header">
                                       <div class="current-event-in-prop">
-                                        <button pButton pRipple type="button" class="p-button-secondary p-button-sm">
+                                        <button
+                                          pButton
+                                          pRipple
+                                          type="button"
+                                          class="p-button-secondary p-button-sm"
+                                        >
                                           {{ getStepCustomerEventValue(i) }}
                                         </button>
                                       </div>
                                     </ng-template>
                                   </p-dropdown>
+                                  <i *ngIf="!isPropertyNameSelected(i, j)"
+                                    class="pi pi-times invisible"
+                                    (click)="removeStepProperty(i, j)"
+                                  ></i>
+
                                   <ng-container *ngIf="isPropertyNameSelected(i, j)">
                                     <p-dropdown
                                       formControlName="operator"
@@ -106,6 +128,10 @@
                                         formControlName="propertyValuePartTwo"
                                       />
                                     </ng-template>
+                                    <i *ngIf="isPropertyNameSelected(i, j)"
+                                      class="pi pi-times invisible pl-3"
+                                      (click)="removeStepProperty(i, j)"
+                                    ></i>
                                   </ng-container>
                                 </ng-container>
                               </div>

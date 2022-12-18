@@ -69,26 +69,33 @@ export class CustomerFilterComponent implements OnInit {
   filtersForm = this.fb.group({...this.initialFiltersFormValue})
 
   resetFiltersForm() {
-    const reserVal = {
+    const resetVal = {
       steps: [{customerEvent: '', properties: [] }]
     }
     // Simple reset not working properly, have to manually remove all and then reset first step
     const stepsLength = this.steps.length
     const steps = this.steps
+    console.log(stepsLength)
     for (let i = 0; i < stepsLength; i++) {
-      if (i === 0) {
-        // Handle first initial step
-        const firstStepProps = this.getStepEventProperties(0)
-        const firstStepPropsLength = this.getStepEventProperties(0).length
-        for (let i = 0; i < firstStepPropsLength; i++) {
-          firstStepProps.removeAt(i)
-        }
-      } else {
+      // console.log(i)
+      // if (i === 0) {
+      //   // Handle first initial step
+      //   const firstStepProps = this.getStepEventProperties(0)
+      //   const firstStepPropsLength = this.getStepEventProperties(0).length
+      //   for (let i = 0; i < firstStepPropsLength; i++) {
+      //     firstStepProps.removeAt(i)
+      //   }
+      // } else {
         steps.removeAt(i)
-      }
+      // }
     }
-
-    this.filtersForm.reset(reserVal)
+    this.filtersForm.reset(resetVal)
+    // If any first step props kept in UI, remove
+    const firstStepProps = this.getStepEventProperties(0)
+      const firstStepPropsLength = this.getStepEventProperties(0).length
+      for (let i = 0; i < firstStepPropsLength; i++) {
+        firstStepProps.removeAt(i)
+      }
   }
 
   get steps() {
@@ -153,8 +160,18 @@ export class CustomerFilterComponent implements OnInit {
       propertyValue: [''],
       // For number in between case
       propertyValuePartTwo: [''],
-  });
+    });
     this.getStepEventProperties(stepIndex).push(propertyForm as FormGroup)
+  }
+
+  cloneStep(stepIndex: number) {
+    const stepCtrls = this.steps.at(stepIndex).controls
+    const stepProps = stepCtrls['properties'] as FormArray
+    const stepForm = this.fb.group({
+      customerEvent: [stepCtrls['customerEvent'].value, Validators.required],
+      properties: this.fb.array([...stepProps.controls]) as FormArray
+    });
+    this.steps.push(stepForm as FormGroup);
   }
 
   removeStepProperty(stepIndex: number, propertyIndex: number) {
