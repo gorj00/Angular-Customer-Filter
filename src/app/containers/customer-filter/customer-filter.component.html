@@ -9,10 +9,10 @@
         (click)="resetFiltersForm()"
       ></button>
     </div>
-    <div class="col-12">
+    <div class="col-12 bg-white py-5 px-3">
       <ng-container formArrayName="steps">
-          <ng-container *ngIf="data.events.events">
-            <ng-container *ngFor="let step of steps.controls; let i = index">
+          <div *ngIf="data.events.events" class="events-container">
+            <div *ngFor="let step of steps.controls; let i = index">
                 <div [formGroup]="step">
                   <p-dropdown
                     formControlName="customerEvent"
@@ -106,8 +106,19 @@
                     </ng-container>
                   </ng-container>
                 </div>
-            </ng-container>
-          </ng-container>
+                <p-divider *ngIf="i !== steps.controls.length - 1"></p-divider>
+            </div>
+            <div class="w-full text-center">
+              <button
+                pButton pRipple
+                type="button"
+                label="+ ADD FUNNEL STEP"
+                class="p-button-info p-button-text p-button-sm"
+                (click)="addStep()"
+              ></button>
+            </div>
+
+          </div>
           <!-- <button (click)="addStep()">Click</button> -->
       </ng-container>
   </div>
