@@ -5,9 +5,17 @@ import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
 import { DropdownModule}  from 'primeng/dropdown';
 import { TabMenuModule } from 'primeng/tabmenu';
+import {InputTextModule} from 'primeng/inputtext';
 
 @NgModule({
   imports: [CommonModule],
-  exports: [AutoCompleteModule, ButtonModule, ListboxModule, DropdownModule, TabMenuModule],
+  exports: [
+    AutoCompleteModule,
+    ButtonModule,
+    ListboxModule,
+    DropdownModule,
+    TabMenuModule,
+    InputTextModule,
+  ],
 })
-export class PrimeNgModule { }
+export class PrimeNgModule {}

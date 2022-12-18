@@ -32,6 +32,9 @@ export class CustomerFilterComponent implements OnInit {
     {label: 'NUMBER', icon: 'pi pi-fw pi-hashtag'},
   ]
 
+  // To access in the template
+  EOperators = EOperators
+
   constructor(
     private eventsFacade: EventsFacade,
     private fb: FormBuilder,
@@ -40,8 +43,6 @@ export class CustomerFilterComponent implements OnInit {
   // Data related
   events$: Observable<IEventsData> = this.eventsFacade.events$.pipe(
     map(events => {
-      console.log(events)
-      // const types = events ? events.map(item => item) : []
       const propertiesByEvent: { [key: string]: IProperty[]} = {}
       events?.length && events.forEach(event => {
         propertiesByEvent[event.type] = event.properties
@@ -54,16 +55,41 @@ export class CustomerFilterComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true})
   )
 
-  // Filters form related
-  filtersForm = this.fb.group({
+  initialFiltersFormValue: {steps: FormArray<FormGroup>} = {
     steps: this.fb.array([
       // Setup initial 1st step
       this.fb.group({
         customerEvent: ['', Validators.required],
         properties: this.fb.array([]) as FormArray
       })
-    ])
-  })
+    ]) as FormArray<FormGroup>
+  }
+
+  // Filters form related
+  filtersForm = this.fb.group({...this.initialFiltersFormValue})
+
+  resetFiltersForm() {
+    const reserVal = {
+      steps: [{customerEvent: '', properties: [] }]
+    }
+    // Simple reset not working properly, have to manually remove all and then reset first step
+    const stepsLength = this.steps.length
+    const steps = this.steps
+    for (let i = 0; i < stepsLength; i++) {
+      if (i === 0) {
+        // Handle first initial step
+        const firstStepProps = this.getStepEventProperties(0)
+        const firstStepPropsLength = this.getStepEventProperties(0).length
+        for (let i = 0; i < firstStepPropsLength; i++) {
+          firstStepProps.removeAt(i)
+        }
+      } else {
+        steps.removeAt(i)
+      }
+    }
+
+    this.filtersForm.reset(reserVal)
+  }
 
   get steps() {
     return this.filtersForm.controls["steps"] as FormArray<FormGroup>;
@@ -71,18 +97,6 @@ export class CustomerFilterComponent implements OnInit {
 
   getFormPropertyValue(step: number, controlIndex: number) {
     return this.getStepEventProperties(step).at(controlIndex).value
-  }
-
-  addStep() {
-    const stepForm = this.fb.group({
-        customerEvent: ['', Validators.required],
-        properties: this.fb.array([]) as FormArray
-    });
-    this.steps.push(stepForm as FormGroup);
-  }
-
-  removeStep(stepIndex: number) {
-    this.steps.removeAt(stepIndex)
   }
 
   getStepCustomerEventControl(stepIndex: number) {
@@ -102,14 +116,39 @@ export class CustomerFilterComponent implements OnInit {
     return this.getStepEventProperties(stepIndex).at(propertyIndex).controls[controlName].value
   }
 
+  getPropertyType(stepIndex: number, propertyIndex: number) {
+    return this.getStepEventPropertyControlValue(stepIndex, propertyIndex, 'type')
+  }
+
+  getPropertyOperator(stepIndex: number, propertyIndex: number) {
+    return this.getStepEventPropertyControlValue(stepIndex, propertyIndex, 'operator')
+  }
+
+  getPropertyPropertyName(stepIndex: number, propertyIndex: number): string {
+    return this.getStepEventPropertyControlValue(stepIndex, propertyIndex, 'propertyName')
+  }
+
   isPropertyNameSelected(stepIndex: number, propertyIndex: number): boolean {
     return !!this.getStepEventPropertyControlValue(stepIndex, propertyIndex, 'propertyName')
   }
 
+  addStep() {
+    const stepForm = this.fb.group({
+        customerEvent: ['', Validators.required],
+        properties: this.fb.array([]) as FormArray
+    });
+    this.steps.push(stepForm as FormGroup);
+  }
+
+  removeStep(stepIndex: number) {
+    this.steps.removeAt(stepIndex)
+  }
+
   addStepProperty(stepIndex: number) {
     const propertyForm = this.fb.group({
+      propertyObject: [], // { property, type }
       propertyName: [''],
-      type: [''],
+      type: [''], // user may select different from propertyObject
       operator: [''],
       propertyValue: [''],
       // For number in between case
@@ -123,8 +162,9 @@ export class CustomerFilterComponent implements OnInit {
   }
 
   onSelectProperty(event: any, stepIndex: number, propertyIndex: number) {
-    const { type } = event.value
+    const { property, type } = event.value
     const prop = this.getStepEventProperties(stepIndex).at(propertyIndex)
+    prop.controls['propertyName'].setValue(property)
 
     // Prefill type and operator controls
     prop.controls['type'].setValue(type)
@@ -133,8 +173,8 @@ export class CustomerFilterComponent implements OnInit {
     } else if (type === 'number') {
       prop.controls['operator'].setValue(EOperators.EQUAL_TO)
       prop.controls['propertyValue'].setValue(0)
-      // // In between case
-      // prop.controls['propertyValuePartTwo'].setValue(0)
+      // In between case
+      prop.controls['propertyValuePartTwo'].setValue(0)
     }
   }
 
@@ -157,7 +197,7 @@ export class CustomerFilterComponent implements OnInit {
     this.events$,
   ).pipe(
     map(([events]) => ({events})),
-    tap(obj => console.log(obj)),
+    // tap(obj => console.log(obj)),
     shareReplay({ bufferSize: 1, refCount: true})
   )
 

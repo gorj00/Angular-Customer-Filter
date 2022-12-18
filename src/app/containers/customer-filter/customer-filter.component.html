@@ -1,75 +1,115 @@
 <ng-container *ngIf="data$ | async as data">
-  <div [formGroup]="filtersForm">
-    <ng-container formArrayName="steps">
-        <ng-container *ngIf="data.events.events">
-          <ng-container *ngFor="let step of steps.controls; let i = index">
-              <div [formGroup]="step">
-                <p-dropdown
-                  formControlName="customerEvent"
-                  [options]="data.events.events"
-                  [optionValue]="'type'"
-                  [optionLabel]="'type'"
-                  placeholder="Select an event"
-                  [filter]="true"
-                  filterBy="type"
-                  class="wide"
-                ></p-dropdown>
-                <button
-                  pButton pRipple
-                  type="button"
-                  label="+ Add an event attribute"
-                  class="p-button-info p-button-text p-button-sm mb-1"
-                  *ngIf="step.controls['customerEvent'].valid && !getStepEventProperties(i).length"
-                  (click)="addStepProperty(i)"
-                ></button>
-                <ng-container *ngIf="getStepEventProperties(i).length">
-                  <ng-container formArrayName="properties">
-                    <ng-container *ngFor="let property of getStepEventProperties(i).controls, let j = index">
-                      <ng-container [formGroup]="property">
-                        <p-dropdown
-                          formControlName="propertyName"
-                          [options]="data.events.propertiesByEvent[getStepCustomerEventValue(i)]"
-                          [optionLabel]="'property'"
-                          placeholder="Select an attribute"
-                          [filter]="true"
-                          filterBy="property"
-                          class="wide property-dropdown"
-                          (onChange)="onSelectProperty($event, i,j)"
-                        >
-                          <ng-template pTemplate="header">
-                            <div class="current-event-in-prop">
-                              <button pButton pRipple type="button" class="p-button-secondary p-button-sm">
-                                {{ getStepCustomerEventValue(i) }}
-                              </button>
-                            </div>
-                          </ng-template>
-                        </p-dropdown>
-                        <ng-container *ngIf="isPropertyNameSelected(i, j)">
+  <div [formGroup]="filtersForm" class="grid grid-nogutter">
+    <div class="col-2">CUSTOMER FILTER</div>
+    <div class="col-2 col-offset-8 text-right">
+      <button pButton pRipple
+        type="button"
+        label="Discard filters"
+        class="p-button-danger p-button-text p-button-sm"
+        (click)="resetFiltersForm()"
+      ></button>
+    </div>
+    <div class="col-12">
+      <ng-container formArrayName="steps">
+          <ng-container *ngIf="data.events.events">
+            <ng-container *ngFor="let step of steps.controls; let i = index">
+                <div [formGroup]="step">
+                  <p-dropdown
+                    formControlName="customerEvent"
+                    [options]="data.events.events"
+                    [optionValue]="'type'"
+                    [optionLabel]="'type'"
+                    placeholder="Select an event"
+                    [filter]="true"
+                    filterBy="type"
+                    class="wide"
+                  ></p-dropdown>
+                  <button
+                    pButton pRipple
+                    type="button"
+                    label="+ Add an event attribute"
+                    class="p-button-info p-button-text p-button-sm mb-1"
+                    *ngIf="step.controls['customerEvent'].valid && !getStepEventProperties(i).length"
+                    (click)="addStepProperty(i)"
+                  ></button>
+                  <ng-container *ngIf="getStepEventProperties(i).length">
+                    <ng-container formArrayName="properties">
+                      <ng-container *ngFor="let property of getStepEventProperties(i).controls, let j = index">
+                        <ng-container [formGroup]="property">
                           <p-dropdown
-                            formControlName="operator"
-                            [options]="operators[getStepEventPropertyControlValue(i, j, 'type')]"
-                            [filter]="false"
-                            appendTo="body"
+                            formControlName="propertyObject"
+                            [options]="data.events.propertiesByEvent[getStepCustomerEventValue(i)]"
+                            [optionLabel]="'property'"
+                            placeholder="Select an attribute"
+                            [filter]="true"
+                            filterBy="property"
+                            class="wide property-dropdown"
+                            (onChange)="onSelectProperty($event, i,j)"
                           >
                             <ng-template pTemplate="header">
-                              <p-tabMenu
-                                [model]="operatorsDropdownHeaderTabs"
-                                [activeItem]="getActiveOperatorsTab(i, j)"
-                                (click)="onChangeActiveOperatorsTab($event, i, j)"
-                              >
-                              </p-tabMenu>
+                              <div class="current-event-in-prop">
+                                <button pButton pRipple type="button" class="p-button-secondary p-button-sm">
+                                  {{ getStepCustomerEventValue(i) }}
+                                </button>
+                              </div>
                             </ng-template>
                           </p-dropdown>
+                          <ng-container *ngIf="isPropertyNameSelected(i, j)">
+                            <p-dropdown
+                              formControlName="operator"
+                              [options]="operators[getPropertyType(i, j)]"
+                              [filter]="false"
+                              appendTo="body"
+                            >
+                              <ng-template pTemplate="header">
+                                <p-tabMenu
+                                  [model]="operatorsDropdownHeaderTabs"
+                                  [activeItem]="getActiveOperatorsTab(i, j)"
+                                  (click)="onChangeActiveOperatorsTab($event, i, j)"
+                                >
+                                </p-tabMenu>
+                              </ng-template>
+                            </p-dropdown>
+                            <ng-template
+                              [ngIf]="getPropertyType(i, j) === 'string'"
+                              [ngIfElse]="numberInput"
+                            >
+                              <input
+                                class="input-value"
+                                type="text"
+                                pInputText
+                                formControlName="propertyValue"
+                              />
+                            </ng-template>
+                            <ng-template #numberInput>
+                              <input
+                                class="input-value"
+                                type="number"
+                                pInputText
+                                formControlName="propertyValue"
+                              />
+                            </ng-template>
+                            <ng-template
+                              [ngIf]="getPropertyOperator(i, j) === EOperators.IN_BETWEEN"
+                            >
+                                <span class="px-2">and</span>
+                                <input
+                                  class="input-value"
+                                  type="number"
+                                  pInputText
+                                  formControlName="propertyValuePartTwo"
+                                />
+                            </ng-template>
+                          </ng-container>
                         </ng-container>
                       </ng-container>
                     </ng-container>
                   </ng-container>
-                </ng-container>
-              </div>
+                </div>
+            </ng-container>
           </ng-container>
-        </ng-container>
-        <!-- <button (click)="addStep()">Click</button> -->
-    </ng-container>
-
+          <!-- <button (click)="addStep()">Click</button> -->
+      </ng-container>
+  </div>
 </div>
 </ng-container>
