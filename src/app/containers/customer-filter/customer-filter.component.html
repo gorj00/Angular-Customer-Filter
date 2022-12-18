@@ -12,6 +12,7 @@
                   placeholder="Select an event"
                   [filter]="true"
                   filterBy="type"
+                  class="wide"
                 ></p-dropdown>
                 <button
                   pButton pRipple
@@ -28,12 +29,12 @@
                         <p-dropdown
                           formControlName="propertyName"
                           [options]="data.events.propertiesByEvent[getStepCustomerEventValue(i)]"
-                          [optionValue]="'property'"
                           [optionLabel]="'property'"
                           placeholder="Select an attribute"
                           [filter]="true"
                           filterBy="property"
-                          class="property-dropdown"
+                          class="wide property-dropdown"
+                          (onChange)="onSelectProperty($event, i,j)"
                         >
                           <ng-template pTemplate="header">
                             <div class="current-event-in-prop">
@@ -43,6 +44,23 @@
                             </div>
                           </ng-template>
                         </p-dropdown>
+                        <ng-container *ngIf="isPropertyNameSelected(i, j)">
+                          <p-dropdown
+                            formControlName="operator"
+                            [options]="operators[getStepEventPropertyControlValue(i, j, 'type')]"
+                            [filter]="false"
+                            appendTo="body"
+                          >
+                            <ng-template pTemplate="header">
+                              <p-tabMenu
+                                [model]="operatorsDropdownHeaderTabs"
+                                [activeItem]="getActiveOperatorsTab(i, j)"
+                                (click)="onChangeActiveOperatorsTab($event, i, j)"
+                              >
+                              </p-tabMenu>
+                            </ng-template>
+                          </p-dropdown>
+                        </ng-container>
                       </ng-container>
                     </ng-container>
                   </ng-container>
