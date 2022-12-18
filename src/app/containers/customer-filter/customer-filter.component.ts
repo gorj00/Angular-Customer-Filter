@@ -1,9 +1,9 @@
 import { EventsFacade } from './../../store/events/events.facade';
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, buffer, combineLatest, map, Observable, shareReplay, startWith, Subject, tap } from 'rxjs';
-import { IEvent, IEventsData, IFormStep, IFormProperty, IProperty, EOperators, IOperators } from 'src/app/models/events.models';
+import { combineLatest, map, Observable, shareReplay } from 'rxjs';
+import { IEventsData,IProperty } from 'src/app/models/events.models';
 import { FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
-import { MenuItem } from 'primeng/api';
+import { FiltersFormCleanupService } from 'src/app/services/filters-form-cleanup.service';
 
 @Component({
   selector: 'app-customer-filter',
@@ -15,6 +15,7 @@ export class CustomerFilterComponent implements OnInit {
   constructor(
     private eventsFacade: EventsFacade,
     private fb: FormBuilder,
+    private filterFormService: FiltersFormCleanupService,
   ) { }
 
   // Data related
@@ -88,7 +89,8 @@ export class CustomerFilterComponent implements OnInit {
 
   onApplyFilters() {
     if (this.steps.length) {
-      console.log(this.filtersForm.value)
+      const filtersFormOutput = this.filtersForm.value
+      this.filterFormService.logFiltersFormOutput(filtersFormOutput)
     }
   }
 
