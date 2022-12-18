@@ -1,5 +1,5 @@
 <ng-container *ngIf="data$ | async as data">
-  <div [formGroup]="filtersForm" class="grid grid-nogutter">
+  <div class="grid grid-nogutter">
     <div class="col-2">CUSTOMER FILTER</div>
     <div class="col-2 col-offset-8 text-right">
       <button pButton pRipple
@@ -10,168 +10,21 @@
       ></button>
     </div>
     <div class="col-12 bg-white py-5 px-3">
-      <ng-container formArrayName="steps">
-          <div *ngIf="data.events.events" class="events-container">
-            <div *ngFor="let step of steps.controls; let i = index">
-                <div [formGroup]="step">
-                  <div class="grid">
-                    <div class="col-12 text-sm text-600 step-header">
-                      <div class="grid">
-                        <div class="col-4">
-                          {{ i + 1}}.step: <span class="pl-2">{{ getStepCustomerEventValue(i) ? getStepCustomerEventValue(i) : 'Unnamed step'}}</span>
-                          <i class="pi pi-pencil pl-2"></i>
-                        </div>
-                        <div class="col-8 text-right">
-                          <i class="pi pi-trash pl-4 invisible" *ngIf="i > 0" (click)="removeStep(i)"></i>
-                          <i class="pi pi-clone px-4 invisible" (click)="cloneStep(i)"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-1 event-col">
-                      <p-dropdown
-                        formControlName="customerEvent"
-                        [options]="data.events.events"
-                        [optionValue]="'type'"
-                        [optionLabel]="'type'"
-                        placeholder="Select an event"
-                        [filter]="true"
-                        filterBy="type"
-                        class="wide"
-                      ></p-dropdown>
-                    </div>
-                    <div class="col-10">
-                      <div class="grid">
-                        <div class="col-12">
-                          <button
-                            pButton pRipple
-                            type="button"
-                            label="+ Add an event attribute"
-                            class="p-button-info p-button-text p-button-sm mb-1"
-                            *ngIf="step.controls['customerEvent'].valid && !getStepEventProperties(i).length"
-                            (click)="addStepProperty(i)"
-                          ></button>
-                          <ng-container *ngIf="getStepEventProperties(i).length">
-                            <div class="grid" formArrayName="properties">
-                              <div class="col-12 property-row" *ngFor="let property of getStepEventProperties(i).controls, let j = index">
-                                <ng-container [formGroup]="property">
-                                  <p-dropdown
-                                    formControlName="propertyObject"
-                                    [options]="data.events.propertiesByEvent[getStepCustomerEventValue(i)]"
-                                    [optionLabel]="'property'"
-                                    placeholder="Select an attribute"
-                                    [filter]="true"
-                                    filterBy="property"
-                                    class="wide property-dropdown"
-                                    (onChange)="onSelectProperty($event, i,j)"
-                                  >
-                                    <ng-template pTemplate="header">
-                                      <div class="current-event-in-prop">
-                                        <button
-                                          pButton
-                                          pRipple
-                                          type="button"
-                                          class="p-button-secondary p-button-sm"
-                                        >
-                                          {{ getStepCustomerEventValue(i) }}
-                                        </button>
-                                      </div>
-                                    </ng-template>
-                                  </p-dropdown>
-                                  <i *ngIf="!isPropertyNameSelected(i, j)"
-                                    class="pi pi-times invisible"
-                                    (click)="removeStepProperty(i, j)"
-                                  ></i>
+      <app-form-steps
+        [events]="data.events.events"
+        [propertiesByEvent]="data.events.propertiesByEvent"
+        [steps]="steps"
+        [filtersForm]="filtersForm"
+        (removeStepAction)="removeStep($event)"
+        (cloneStepAction)="cloneStep($event)"
+        (resetFiltersAction)="resetFiltersForm()"
+        (addStepAction)="addStep()"
+      ></app-form-steps>
+    </div>
+    <p-button
+      label="Apply filters"
+      class="my-5" (click)="onApplyFilters()"
+    ></p-button>
 
-                                  <ng-container *ngIf="isPropertyNameSelected(i, j)">
-                                    <p-dropdown
-                                      formControlName="operator"
-                                      [options]="operators[getPropertyType(i, j)]"
-                                      [filter]="false"
-                                      appendTo="body"
-                                    >
-                                      <ng-template pTemplate="header">
-                                        <p-tabMenu
-                                          [model]="operatorsDropdownHeaderTabs"
-                                          [activeItem]="getActiveOperatorsTab(i, j)"
-                                          (click)="onChangeActiveOperatorsTab($event, i, j)"
-                                        >
-                                        </p-tabMenu>
-                                      </ng-template>
-                                    </p-dropdown>
-                                    <ng-template
-                                      [ngIf]="getPropertyType(i, j) === 'string'"
-                                      [ngIfElse]="numberInput"
-                                    >
-                                      <input
-                                        class="input-value"
-                                        type="text"
-                                        pInputText
-                                        formControlName="propertyValue"
-                                      />
-                                    </ng-template>
-                                    <ng-template #numberInput>
-                                      <input
-                                        class="input-value"
-                                        type="number"
-                                        pInputText
-                                        formControlName="propertyValue"
-                                      />
-                                    </ng-template>
-                                    <ng-template
-                                      [ngIf]="getPropertyOperator(i, j) === EOperators.IN_BETWEEN"
-                                    >
-                                      <span class="px-2">and</span>
-                                      <input
-                                        class="input-value"
-                                        type="number"
-                                        pInputText
-                                        formControlName="propertyValuePartTwo"
-                                      />
-                                    </ng-template>
-                                    <i *ngIf="isPropertyNameSelected(i, j)"
-                                      class="pi pi-times invisible pl-3"
-                                      (click)="removeStepProperty(i, j)"
-                                    ></i>
-                                  </ng-container>
-                                </ng-container>
-                              </div>
-                            </div>
-                          </ng-container>
-                        </div>
-                        <div class="col refine-button" *ngIf="getStepEventProperties(i).length > 0">
-                          <button
-                            pButton pRipple
-                            type="button"
-                            label="Refine more"
-                            class="p-button-info p-button-text p-button-sm"
-                            (click)="addStepProperty(i)"
-                          ></button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-
-
-                </div>
-                <p-divider *ngIf="i !== steps.controls.length - 1"></p-divider>
-            </div>
-            <div class="w-full text-center">
-              <button
-                pButton pRipple
-                type="button"
-                label="+ ADD FUNNEL STEP"
-                class="p-button-info p-button-text p-button-sm"
-                (click)="addStep()"
-              ></button>
-            </div>
-
-          </div>
-          <!-- <button (click)="addStep()">Click</button> -->
-      </ng-container>
   </div>
-  <p-button label="Apply filters" class="my-5" (click)="onApplyFilters()">
-  </p-button>
-
-</div>
 </ng-container>
