@@ -101,16 +101,10 @@ export class FormStepsComponent implements OnInit, AfterViewChecked {
     this.getStepEventProperties(stepIndex).push(propertyForm as FormGroup)
   }
 
-  selectProperty(obj: { event: any, i: number, j: number}) {
-    const { event, i: stepIndex, j: propertyIndex } = obj
-    const { property, type } = event.value
-    const prop = this.getStepEventProperties(stepIndex).at(propertyIndex)
-    prop.controls['propertyName'].setValue(property)
-
-    // Prefill type and operator controls
-    prop.controls['type'].setValue(type)
+  private prefillInputValues(type: string, prop: FormGroup<any>) {
     if (type === 'string') {
       prop.controls['operator'].setValue(EOperators.EQUALS)
+      prop.controls['propertyValue'].setValue('')
     } else if (type === 'number') {
       prop.controls['operator'].setValue(EOperators.EQUAL_TO)
       prop.controls['propertyValue'].setValue(0)
@@ -119,15 +113,29 @@ export class FormStepsComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  selectProperty(obj: { event: any, i: number, j: number}) {
+    const { event, i: stepIndex, j: propertyIndex } = obj
+    const { property, type } = event.value
+    const prop = this.getStepEventProperties(stepIndex).at(propertyIndex)
+    prop.controls['propertyName'].setValue(property)
+
+    // Prefill type and operator controls
+    prop.controls['type'].setValue(type)
+    this.prefillInputValues(type, prop)
+  }
+
   changeActiveOperatorsTab(obj: {
     event: any, i: number, j: number
   }) {
     const { event, i: stepIndex, j: propertyIndex } = obj
     // Workaround as the TabMenu docs's activeItemChange event was not firing the selected tab
     const tabChoice = event.target.innerText;
+    const newType = tabChoice?.toLowerCase()
     const prop = this.getStepEventProperties(stepIndex).at(propertyIndex)
     const typeControl = prop.controls['type']
-    typeControl.setValue(tabChoice?.toLowerCase())
+    typeControl.setValue(newType)
+    // Reset vals on operator change
+    this.prefillInputValues(newType, prop)
   }
 
   getStepEventPropertyControlValue(stepIndex: number, propertyIndex: number, controlName: string): string {

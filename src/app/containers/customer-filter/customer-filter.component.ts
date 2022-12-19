@@ -47,17 +47,14 @@ export class CustomerFilterComponent implements OnInit {
   filtersForm = this.fb.group({...this.initialFiltersFormValue})
 
   resetFiltersForm() {
-    const resetVal = {
-      steps: [{customerEvent: '', properties: [] }]
-    }
-    // Simple reset not working properly, have to manually remove all and then reset first step
-    const stepsLength = this.steps.length
-    const steps = this.steps
+    // Native form reset was unpredictable, applied custom logic for reset
+    // Add new fresh step and remove all preceeding it
+    this.addStep()
+    const stepsLengthExceptLast = this.steps.length - 1
 
-    for (let i = 0; i < stepsLength; i++) {
-      steps.removeAt(i)
+    for (let i = 0; i < stepsLengthExceptLast; i++) {
+      this.steps.removeAt(0)
     }
-    this.filtersForm.reset(resetVal)
 
   }
 
